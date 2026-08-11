@@ -1,7 +1,7 @@
 name: Build EasyBoutik APK
 
 on:
-  workflow_dispatch:   # permet de lancer manuellement
+  workflow_dispatch:
   push:
     branches: [ main ]
 
@@ -26,7 +26,8 @@ jobs:
           git zip unzip openjdk-17-jdk \
           autoconf libtool pkg-config \
           zlib1g-dev libncurses5-dev libncursesw5-dev \
-          cmake libffi-dev libssl-dev
+          cmake libffi-dev libssl-dev \
+          libltdl-dev
 
     - name: Install Buildozer & Cython
       run: |
@@ -35,6 +36,8 @@ jobs:
 
     - name: Build APK
       run: |
+        # Accepter les licences Android automatiquement
+        yes | buildozer android update || true
         buildozer -v android debug
 
     - name: Upload APK
