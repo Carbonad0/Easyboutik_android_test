@@ -1,4 +1,10 @@
 [app]
+
+android.api = 34
+android.minapi = 23
+android.ndk = 25b
+android.accept_sdk_license = True
+android.build_tools_version = 34.0.0
 # EasyBoutik Android v3.4
 # Build depuis ce dossier avec : buildozer -v android debug
 
