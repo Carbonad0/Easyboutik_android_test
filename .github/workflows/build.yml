@@ -14,48 +14,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build with Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
+      id: buildozer
       with:
-        python-version: '3.11'
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          git zip unzip openjdk-17-jdk wget \
-          autoconf libtool pkg-config \
-          zlib1g-dev libncurses5-dev libncursesw5-dev \
-          cmake libffi-dev libssl-dev libltdl-dev
-
-    - name: Install Buildozer & Cython
-      run: |
-        pip install --upgrade pip
-        pip install buildozer cython
-
-    - name: Prepare and Build
-      run: |
-        # Lancer une première fois pour que Buildozer crée son SDK
-        buildozer android debug || true
-
-        # Installer les build-tools (qui contiennent aidl) dans le SDK de Buildozer
-        SDK_DIR="$HOME/.buildozer/android/platform/android-sdk"
-        if [ -d "$SDK_DIR/cmdline-tools" ] || [ -d "$SDK_DIR/tools" ]; then
-          export ANDROID_HOME="$SDK_DIR"
-          export PATH="$PATH:$SDK_DIR/cmdline-tools/latest/bin:$SDK_DIR/tools/bin:$SDK_DIR/platform-tools"
-          
-          # Accepter les licences et installer build-tools
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" || true
-        fi
-
-        # Relancer la compilation
-        buildozer -v android debug
+        command: buildozer -v android debug
+        buildozer_version: master
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: EasyBoutik-APK
-        path: bin/*.apk
+        path: ${{ steps.buildozer.outputs.filename }}
         retention-days: 14
